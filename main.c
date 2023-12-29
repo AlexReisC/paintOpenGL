@@ -29,6 +29,8 @@ Line lines[MAX_LINES];
 int count_polygons = 0;
 Poligono polygons[MAX_POLYGONS];
 
+GLint doubleClick = 0;
+
 void addPoint(float x, float y){
 
     points[count_points].x = x;
@@ -60,12 +62,12 @@ void addLine(float x1, float y1, float x2, float y2){
 
 void drawLines(){
 
-    glLineWidth(3.0);
+    glLineWidth(4.0);
 //    glBegin(GL_LINE_STRIP);
     glBegin(GL_LINES);
     for (int i = 0; i < count_lines; i++){
         glVertex2f(lines[i].start.x, lines[i].start.y);
-        glVertex2f(lines[i].start.x, lines[i].end.y);
+        glVertex2f(lines[i].end.x, lines[i].end.y);
     }
     glEnd();
 }
@@ -122,11 +124,13 @@ void drawPoligono(){
     -> Algoritmo de selecao de area
     -> KEY_UP e KEY_DOWN
 */
-
+/*
 void selectColor(int button, int state, int x, int y){
+    if (button == GLUT_LEFT_BUTTON){
 
+    }
 }
-
+*/
 void GerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
@@ -141,22 +145,25 @@ void GerenciaTeclado(unsigned char key, int x, int y){
         case 'b':// muda a cor corrente para azul
             glColor3f(0.0,0.0,1.0);
             break;
+        case '1':
+            doubleClick = 0;
+            break;
+        case '2':
+            doubleClick = 1;
+            break;
     }
     glutPostRedisplay();
 }
 
-// Função callback chamada para gerenciar eventos do mouse
 void GerenciaMouse(int button, int state, int x, int y){
-    if (button == GLUT_LEFT_BUTTON){
-        if (state == GLUT_DOWN){
-            addPoint(x, 400-y);
-//          aplicar algoritmo de selecao
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
+        addPoint(x, 400-y);
+        if(doubleClick == 1){
+            addLine(points[count_points-2].x, points[count_points-2].y, points[count_points-1].x, points[count_points-1].y);
         }
-        while(state == GLUT_DOWN){
-//            addReta(x, 400-y);
-        }
-         // aplicar funcao de translacao
     }
+
+    // aplicar funcao de translacao
     glutPostRedisplay();
 }
 
