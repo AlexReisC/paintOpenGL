@@ -4,6 +4,8 @@
 #define MAX_POINTS 100
 #define MAX_LINES 100
 #define MAX_POLYGONS 100
+#define height 480
+#define width 640
 
 typedef struct{
     float x;
@@ -16,7 +18,7 @@ typedef struct{
 }Line;
 
 typedef struct{
-    Line edges[MAX_LINES];
+    Point vertices[MAX_POINTS];
     int count_edges;
 }Poligono;
 
@@ -29,7 +31,9 @@ Line lines[MAX_LINES];
 int count_polygons = 0;
 Poligono polygons[MAX_POLYGONS];
 
-GLint doubleClick = 0;
+GLint lineTrue = 0;
+GLint clicks = 0;
+int count_cord = 0;
 
 void addPoint(float x, float y){
 
@@ -63,7 +67,6 @@ void addLine(float x1, float y1, float x2, float y2){
 void drawLines(){
 
     glLineWidth(4.0);
-//    glBegin(GL_LINE_STRIP);
     glBegin(GL_LINES);
     for (int i = 0; i < count_lines; i++){
         glVertex2f(lines[i].start.x, lines[i].start.y);
@@ -85,29 +88,27 @@ void drawLines(){
 
 */
 
-void addPoligono(float vertices[], int clicks){
-    int i = 0;
-    while(i < clicks){
-        polygons[count_polygons].edges[i].start.x = vertices[i];
-        polygons[count_polygons].edges[i].start.y = vertices[i];
-
-        polygons[count_polygons].edges[i].end.x = vertices[i];
-        polygons[count_polygons].edges[i].end.y = vertices[i];
-
-        polygons[count_polygons].count_edges++;
-        i++;
+void addPoligono(int n, int vet[]){
+    for(int i = 0; i < n; i++){
+        polygons[count_polygons].vertices[i].x = vet[i];
+        polygons[count_polygons].vertices[i].y = vet[i];
     }
+
     count_polygons++;
 }
 
-void drawPoligono(){
-    glLineWidth(3.0);
-    glBegin(GL_LINE_LOOP);
-    for(int i = 0; i < count_polygons; i++){
-        for(int j = 0; j < polygons[i].count_edges; j++){
-            glVertex2i(polygons[i].edges[j].start.x, polygons[i].edges[j].start.y);
-            glVertex2i(polygons[i].edges[j].end.x, polygons[i].edges[j].end.y);
-        }
+void drawTriangle(int vet[]){
+   /* glBegin(GL_TRIANGLE);
+
+    glEnd();*/
+}
+
+void drawSquare(int vet[]){
+    glLineWidth(4.0);
+    glBegin(GL_QUADS);
+    for(int i = 0; i < 8; i++){
+        glVertex2i(vet[i], vet[i+1]);
+        i++;
     }
 
     glEnd();
@@ -124,14 +125,16 @@ void drawPoligono(){
     -> Algoritmo de selecao de area
     -> KEY_UP e KEY_DOWN
 */
-/*
-void selectColor(int button, int state, int x, int y){
-    if (button == GLUT_LEFT_BUTTON){
 
-    }
+void selectColor(int button, int state, int x, int y){
+
 }
-*/
-void GerenciaTeclado(unsigned char key, int x, int y){
+
+void menu(){
+
+}
+
+void manageKeyboard(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
         case 'r':// muda a cor corrente para vermelho
@@ -146,28 +149,35 @@ void GerenciaTeclado(unsigned char key, int x, int y){
             glColor3f(0.0,0.0,1.0);
             break;
         case '1':
-            doubleClick = 0;
+            lineTrue = 0;
             break;
         case '2':
-            doubleClick = 1;
+            lineTrue = 1;
             break;
     }
     glutPostRedisplay();
 }
 
-void GerenciaMouse(int button, int state, int x, int y){
+void manageMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        addPoint(x, 400-y);
-        if(doubleClick == 1){
+        clicks++;
+        addPoint(x, height-y);
+        if(lineTrue == 1){
             addLine(points[count_points-2].x, points[count_points-2].y, points[count_points-1].x, points[count_points-1].y);
         }
-    }
 
-    // aplicar funcao de translacao
+        // aqui a funcao de selecao do quadrado
+        int cord[MAX_POINTS];
+        if(count_cord < clicks){
+            cord[count_cord] = x;
+            cord[count_cord+1] = y;
+            count_cord+=2;
+        }
+        //drawSquare(cord);
+    }
     glutPostRedisplay();
 }
 
-// Função callback chamada para gerenciar eventos do teclado
 // para teclas especiais, tais como F1, PgDn e Home
 /*void TeclasEspeciais(int key, int x, int y){
     if(key == GLUT_KEY_UP) {
@@ -186,6 +196,7 @@ void display(void){
 
     drawPoints();
     drawLines();
+//    drawPoligono();
     /*
     glTranslatef(,,0);
     glScalef(,,1.0);
@@ -198,23 +209,21 @@ void display(void){
 int init(void){
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.0,400.0,0.0,400.0);
+    gluOrtho2D(0.0,width,0.0,height);
 
-    float vertices[MAX_POINTS];
-    int clicks = 0;
 }
 
 int main(int argc, char **argv)
 {
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(400,400);
+    glutInitWindowSize(width, height);
     glutInitWindowPosition(200,0);
     glutCreateWindow("Paint OpenGL");
 
     glutDisplayFunc(display);
-    glutKeyboardFunc(GerenciaTeclado);
-    glutMouseFunc(GerenciaMouse);
+    glutKeyboardFunc(manageKeyboard);
+    glutMouseFunc(manageMouse);
 //    glutSpecialFunc(TeclasEspeciais);
 
     init();
