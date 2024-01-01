@@ -1,76 +1,76 @@
 #include <windows.h>
 #include <GL/glut.h>
 
-#define MAX_POINTS 100
-#define MAX_LINES 100
-#define MAX_POLYGONS 100
-#define height 480
-#define width 640
+#define MAX_PONTOS 100
+#define MAX_RETAS 100
+#define MAX_POLIGONOS 100
+#define altura 480
+#define largura 640
 
 typedef struct{
     float x;
     float y;
-}Point;
+}Ponto;
 
 typedef struct{
-    Point start;
-    Point end;
-}Line;
+    Ponto inicio;
+    Ponto fim;
+}Reta;
 
 typedef struct{
-    Point vertices[MAX_POINTS];
-    int count_edges;
+    Ponto vertices[MAX_PONTOS];
+    int qtd_vertices;
 }Poligono;
 
-int count_points = 0;
-Point points[MAX_POINTS];
+int qtd_pontos = 0;
+Ponto pontos[MAX_PONTOS];
 
-int count_lines = 0;
-Line lines[MAX_LINES];
+int qtd_retas = 0;
+Reta retas[MAX_RETAS];
 
-int count_polygons = 0;
-Poligono polygons[MAX_POLYGONS];
+int qtd_poligonos = 0;
+Poligono poligonos[MAX_POLIGONOS];
 
 GLint lineTrue = 0;
 GLint clicks = 0;
-int count_cord = 0;
+int qtd_cord = 0;
 
-void addPoint(float x, float y){
+void addPonto(float x, float y){
 
-    points[count_points].x = x;
-    points[count_points].y = y;
+    pontos[qtd_pontos].x = x;
+    pontos[qtd_pontos].y = y;
 
-    count_points++;
+    qtd_pontos++;
 }
 
-void drawPoints(){
+void desenharPontos(){
 
     glPointSize(5.0);
     glBegin(GL_POINTS);
-    for (int i = 0; i < count_points; i++){
-        glVertex2f(points[i].x, points[i].y);
+    for (int i = 0; i < qtd_pontos; i++){
+        glVertex2f(pontos[i].x, pontos[i].y);
     }
     glEnd();
 }
 
-void addLine(float x1, float y1, float x2, float y2){
+void addReta(float x1, float y1, float x2, float y2){
 
-    lines[count_lines].start.x = x1;
-    lines[count_lines].start.y = y1;
+    retas[qtd_retas].inicio.x = x1;
+    retas[qtd_retas].inicio.y = y1;
 
-    lines[count_lines].end.x = x2;
-    lines[count_lines].end.y = y2;
+    retas[qtd_retas].fim.x = x2;
+    retas[qtd_retas].fim.y = y2;
 
-    count_lines++;
+    qtd_retas++;
 }
 
-void drawLines(){
+void desenharRetas(){
 
     glLineWidth(4.0);
     glBegin(GL_LINES);
-    for (int i = 0; i < count_lines; i++){
-        glVertex2f(lines[i].start.x, lines[i].start.y);
-        glVertex2f(lines[i].end.x, lines[i].end.y);
+    for (int i = 0; i < qtd_retas; i++){
+        glVertex2f(retas[i].inicio.x, retas[i].inicio.y);
+        glVertex2f(retas[i].fim.x, retas[i].fim.y);
     }
     glEnd();
 }
@@ -90,11 +90,11 @@ void drawLines(){
 
 void addPoligono(int n, int vet[]){
     for(int i = 0; i < n; i++){
-        polygons[count_polygons].vertices[i].x = vet[i];
-        polygons[count_polygons].vertices[i].y = vet[i];
+        poligonos[qtd_poligonos].vertices[i].x = vet[i];
+        poligonos[qtd_poligonos].vertices[i].y = vet[i];
     }
 
-    count_polygons++;
+    qtd_poligonos++;
 }
 
 void drawTriangle(int vet[]){
@@ -161,17 +161,17 @@ void manageKeyboard(unsigned char key, int x, int y){
 void manageMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
         clicks++;
-        addPoint(x, height-y);
+        addPonto(x, altura-y);
         if(lineTrue == 1){
-            addLine(points[count_points-2].x, points[count_points-2].y, points[count_points-1].x, points[count_points-1].y);
+            addLine(pontos[qtd_pontos-2].x, pontos[qtd_pontos-2].y, pontos[qtd_pontos-1].x, pontos[qtd_pontos-1].y);
         }
 
         // aqui a funcao de selecao do quadrado
-        int cord[MAX_POINTS];
-        if(count_cord < clicks){
-            cord[count_cord] = x;
-            cord[count_cord+1] = y;
-            count_cord+=2;
+        int cord[MAX_PontoS];
+        if(qtd_cord < clicks){
+            cord[qtd_cord] = x;
+            cord[qtd_cord+1] = y;
+            qtd_cord+=2;
         }
         //drawSquare(cord);
     }
@@ -194,7 +194,7 @@ void display(void){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    drawPoints();
+    drawPontos();
     drawLines();
 //    drawPoligono();
     /*
@@ -209,7 +209,7 @@ void display(void){
 int init(void){
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.0,width,0.0,height);
+    gluOrtho2D(0.0,largura,0.0,altura);
 
 }
 
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 {
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(width, height);
+    glutInitWindowSize(largura, altura);
     glutInitWindowPosition(200,0);
     glutCreateWindow("Paint OpenGL");
 
