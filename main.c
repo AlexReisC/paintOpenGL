@@ -97,13 +97,13 @@ void addPoligono(int n, int vet[]){
     qtd_poligonos++;
 }
 
-void drawTriangle(int vet[]){
+void desenharTriangulo(int vet[]){
    /* glBegin(GL_TRIANGLE);
 
     glEnd();*/
 }
 
-void drawSquare(int vet[]){
+void desenharQuadrado(int vet[]){
     glLineWidth(4.0);
     glBegin(GL_QUADS);
     for(int i = 0; i < 8; i++){
@@ -126,15 +126,15 @@ void drawSquare(int vet[]){
     -> KEY_UP e KEY_DOWN
 */
 
-void selectColor(int button, int state, int x, int y){
+void desenharPaletaDeCores(int button, int state, int x, int y){
 
 }
 
-void menu(){
+void desenharMenu(){
 
 }
 
-void manageKeyboard(unsigned char key, int x, int y){
+void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
         case 'r':// muda a cor corrente para vermelho
@@ -158,16 +158,16 @@ void manageKeyboard(unsigned char key, int x, int y){
     glutPostRedisplay();
 }
 
-void manageMouse(int button, int state, int x, int y){
+void gerenciaMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
         clicks++;
         addPonto(x, altura-y);
         if(lineTrue == 1){
-            addLine(pontos[qtd_pontos-2].x, pontos[qtd_pontos-2].y, pontos[qtd_pontos-1].x, pontos[qtd_pontos-1].y);
+            addReta(pontos[qtd_pontos-2].x, pontos[qtd_pontos-2].y, pontos[qtd_pontos-1].x, pontos[qtd_pontos-1].y);
         }
 
         // aqui a funcao de selecao do quadrado
-        int cord[MAX_PontoS];
+        int cord[MAX_PONTOS];
         if(qtd_cord < clicks){
             cord[qtd_cord] = x;
             cord[qtd_cord+1] = y;
@@ -194,9 +194,9 @@ void display(void){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    drawPontos();
-    drawLines();
-//    drawPoligono();
+    desenharPontos();
+    desenharRetas();
+
     /*
     glTranslatef(,,0);
     glScalef(,,1.0);
@@ -222,8 +222,8 @@ int main(int argc, char **argv)
     glutCreateWindow("Paint OpenGL");
 
     glutDisplayFunc(display);
-    glutKeyboardFunc(manageKeyboard);
-    glutMouseFunc(manageMouse);
+    glutKeyboardFunc(gerenciaTeclado);
+    glutMouseFunc(gerenciaMouse);
 //    glutSpecialFunc(TeclasEspeciais);
 
     init();
