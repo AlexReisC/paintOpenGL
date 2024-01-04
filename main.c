@@ -91,30 +91,7 @@ void addPoligono(int n, int vet[]){
 
 void desenharPoligono(){
     for(int i = 0; i < qtd_poligonos; i++){
-        if(poligonos[i].qtd_vertices == 3){
-            glBegin(GL_TRIANGLES);
-                glVertex2i(poligonos[i].vertices[0].x, poligonos[i].vertices[0].y);
-                glVertex2i(poligonos[i].vertices[1].x, poligonos[i].vertices[1].y);
-                glVertex2i(poligonos[i].vertices[2].x, poligonos[i].vertices[2].y);
-            glEnd();
-        }
-        else if(poligonos[i].qtd_vertices == 4){
-            glBegin(GL_QUADS);
-                glVertex2i(poligonos[i].vertices[0].x, poligonos[i].vertices[0].y);
-                glVertex2i(poligonos[i].vertices[1].x, poligonos[i].vertices[1].y);
-                glVertex2i(poligonos[i].vertices[2].x, poligonos[i].vertices[2].y);
-                glVertex2i(poligonos[i].vertices[3].x, poligonos[i].vertices[3].y);
-            glEnd();
-        }
-        else{
-            int j;
-            glBegin(GL_POLYGON);
-            for(j = 0; j < poligonos[i].qtd_vertices; j++){
-                glVertex2i(poligonos[i].vertices[j].x, poligonos[i].vertices[j].y);
-            }
 
-            glEnd();
-        }
     }
 }
 
@@ -140,7 +117,6 @@ void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
         case 'r':// vermelho
-//            glColor3f(1.0,0.0,0.0);
             corAtual[0] = 1.0;
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
@@ -150,23 +126,30 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             corAtual[0] = 0.0;
             corAtual[1] = 1.0;
             corAtual[2] = 0.0;
-//            glColor3f(0.0,1.0,0.0);
             break;
         case 'B':
         case 'b':// azul
-            glColor3f(0.0,0.0,1.0);
+            corAtual[0] = 0.0;
+            corAtual[1] = 0.0;
+            corAtual[2] = 1.0;
             break;
         case 'Y':
         case 'y':// amarelo
-            glColor3f(1.0,1.0,0.0);
+            corAtual[0] = 1.0;
+            corAtual[1] = 1.0;
+            corAtual[2] = 0.0;
             break;
         case 'P':
         case 'p':// roxo
-            glColor3f(1.0,0.0,1.0);
+            corAtual[0] = 1.0;
+            corAtual[1] = 0.0;
+            corAtual[2] = 1.0;
             break;
         case 'C':
         case 'c':// ciano
-            glColor3f(0.0,1.0,1.0);
+            corAtual[0] = 0.0;
+            corAtual[1] = 1.0;
+            corAtual[2] = 1.0;
             break;
         case '1':
             modo = 0;
