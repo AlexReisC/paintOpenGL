@@ -34,3 +34,5 @@ GLint clicks = 0;
 GLfloat corAtual[3];
 GLint cord[MAX_PONTOS];
 GLint cont_cord = 0;
+GLint xReta[MAX_PONTOS];
+GLint yReta[MAX_PONTOS];
