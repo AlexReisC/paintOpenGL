@@ -40,7 +40,7 @@ void addPonto(int x, int y){
 }
 
 void desenharPontos(){
-    glPointSize(6.0);
+    glPointSize(tamanhoPonto);
     glBegin(GL_POINTS);
     for (int i = 0; i < qtd_pontos; i++){
         glColor3f(pontos[i].cor[0], pontos[i].cor[1], pontos[i].cor[2]);
@@ -102,6 +102,19 @@ void desenharPoligono(){
         }
         glEnd();
     }
+}
+
+int selecionarPonto(int mx, int my, int t){
+    for(int i = 0; i < qtd_pontos; i++){
+        if(mx <= pontos[i].x + t && mx >= pontos[i].x - t){
+                printf(" OK! ");
+            if(my <= pontos[i].y + t && my >= pontos[i].y - t){
+                printf(" OK! ");
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 void desenharPaletaDeCores(int button, int state, int x, int y){
@@ -171,6 +184,7 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             corAtual[0] = 0.0;
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
+            break;
         case '1':
             modo = 1;
             break;
@@ -179,6 +193,10 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             break;
         case '3':
             modo = 3;
+            break;
+        case 'S':
+        case 's':
+            modo = 4;
             break;
     }
     glutPostRedisplay();
@@ -199,6 +217,10 @@ void gerenciaMouse(int button, int state, int x, int y){
             cordenadas[cont_cord+1] = altura-y;
             clicks++;
             cont_cord = cont_cord + 2;
+        }
+        else{
+            int resp = selecionarPonto(x, altura-y, tolerancia);
+            // funcao de transladar e escalar:
         }
 
     }

@@ -38,3 +38,5 @@ GLint cont_cord = 0;
 GLint xReta[4];
 GLint yReta[4];
 GLint cont_XY = 0;
+GLint tolerancia = 7;
+GLfloat tamanhoPonto = 6.0;
