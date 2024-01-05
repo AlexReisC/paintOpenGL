@@ -1,6 +1,7 @@
 #define MAX_PONTOS 100
 #define MAX_RETAS 100
 #define MAX_POLIGONOS 100
+#define MAX_VERTICES 20
 #define altura 480
 #define largura 640
 
@@ -16,7 +17,7 @@ typedef struct{
 }Reta;
 
 typedef struct{
-    Ponto vertices[MAX_PONTOS];
+    Ponto vertices[MAX_VERTICES];
     GLint qtd_vertices;
 }Poligono;
 
@@ -29,10 +30,11 @@ Reta retas[MAX_RETAS];
 GLint qtd_poligonos = 0;
 Poligono poligonos[MAX_POLIGONOS];
 
-GLint modo = 0;
+GLint modo = 1;
 GLint clicks = 0;
 GLfloat corAtual[3];
-GLint cord[MAX_PONTOS];
+GLint cordenadas[MAX_VERTICES];
 GLint cont_cord = 0;
-GLint xReta[MAX_PONTOS];
-GLint yReta[MAX_PONTOS];
+GLint xReta[4];
+GLint yReta[4];
+GLint cont_XY = 0;

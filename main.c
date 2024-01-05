@@ -40,7 +40,7 @@ void addPonto(int x, int y){
 }
 
 void desenharPontos(){
-    glPointSize(5.0);
+    glPointSize(6.0);
     glBegin(GL_POINTS);
     for (int i = 0; i < qtd_pontos; i++){
         glColor3f(pontos[i].cor[0], pontos[i].cor[1], pontos[i].cor[2]);
@@ -67,7 +67,7 @@ void addReta(int x1, int y1, int x2, int y2){
 }
 
 void desenharRetas(){
-    glLineWidth(4.0);
+    glLineWidth(5.0);
     glBegin(GL_LINES);
     for (int i = 0; i < qtd_retas; i++){
         glColor3f(retas[i].inicio.cor[0], retas[i].inicio.cor[1], retas[i].inicio.cor[2]);
@@ -94,7 +94,6 @@ void addPoligono(int n, int vet[]){
 }
 
 void desenharPoligono(){
-
     for(int i = 0; i < qtd_poligonos; i++){
         glBegin(GL_LINE_LOOP);
         for(int j = 0; j < poligonos[i].qtd_vertices; j++){
@@ -103,7 +102,6 @@ void desenharPoligono(){
         }
         glEnd();
     }
-
 }
 
 void desenharPaletaDeCores(int button, int state, int x, int y){
@@ -162,6 +160,17 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             corAtual[1] = 1.0;
             corAtual[2] = 1.0;
             break;
+        case 'O':
+        case 'o': //laranja
+            corAtual[0] = 1.0;
+            corAtual[1] = 0.5;
+            corAtual[2] = 0.0;
+            break;
+        case 'D':
+        case 'd': // default: preto
+            corAtual[0] = 0.0;
+            corAtual[1] = 0.0;
+            corAtual[2] = 0.0;
         case '1':
             modo = 1;
             break;
@@ -177,28 +186,36 @@ void gerenciaTeclado(unsigned char key, int x, int y){
 
 void gerenciaMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        addPonto(x, altura-y);
-        if(modo == 2){
-            xReta[cont_cord] = x;
-            yReta[cont_cord] = altura - y;
-            cont_cord++;
-            addReta(pontos[qtd_pontos-2].x, pontos[qtd_pontos-2].y, pontos[qtd_pontos-1].x, pontos[qtd_pontos-1].y);
+        if(modo == 1){
+          addPonto(x, altura-y);
         }
-    }
-    else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
-        cord[cont_cord] = x;
-        cord[cont_cord+1] = altura-y;
-        clicks++;
-        cont_cord = cont_cord + 2;
-    }
-    if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN){
-        if(modo == 3){
-            addPoligono(clicks, cord);
-            clicks = 0;
-            cont_cord = 0;
+        else if(modo == 2){
+            xReta[cont_XY] = x;
+            yReta[cont_XY] = altura - y;
+            cont_XY++;
+        }
+        else if(modo == 3){ // vira else se nao houver outros 'modos'
+            cordenadas[cont_cord] = x;
+            cordenadas[cont_cord+1] = altura-y;
+            clicks++;
+            cont_cord = cont_cord + 2;
         }
 
     }
+    else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
+        if(modo == 3){
+            addPoligono(clicks, cordenadas);
+            clicks = 0;
+            cont_cord = 0;
+        } else if(modo == 2){
+            addReta(xReta[0], yReta[0], xReta[1], yReta[1]);
+            cont_XY = 0;
+        }
+
+    }
+    /*if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN){
+
+    }*/
     glutPostRedisplay();
 }
 
