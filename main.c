@@ -40,7 +40,7 @@ void addPonto(int x, int y){
 }
 
 void desenharPontos(){
-    glPointSize(tamanhoPonto);
+    glPointSize(6.0);
     glBegin(GL_POINTS);
     for (int i = 0; i < qtd_pontos; i++){
         glColor3f(pontos[i].cor[0], pontos[i].cor[1], pontos[i].cor[2]);
@@ -107,14 +107,16 @@ void desenharPoligono(){
 int selecionarPonto(int mx, int my, int t){
     for(int i = 0; i < qtd_pontos; i++){
         if(mx <= pontos[i].x + t && mx >= pontos[i].x - t){
-                printf(" OK! ");
             if(my <= pontos[i].y + t && my >= pontos[i].y - t){
-                printf(" OK! ");
                 return 1;
             }
         }
     }
     return 0;
+}
+
+int selecionarReta(int mx, int my, int t){
+
 }
 
 void desenharPaletaDeCores(int button, int state, int x, int y){
@@ -208,9 +210,8 @@ void gerenciaMouse(int button, int state, int x, int y){
           addPonto(x, altura-y);
         }
         else if(modo == 2){
-            xReta[cont_XY] = x;
-            yReta[cont_XY] = altura - y;
-            cont_XY++;
+            inicioX = x;
+            inicioY = altura - y;
         }
         else if(modo == 3){ // vira else se nao houver outros 'modos'
             cordenadas[cont_cord] = x;
@@ -222,18 +223,21 @@ void gerenciaMouse(int button, int state, int x, int y){
             int resp = selecionarPonto(x, altura-y, tolerancia);
             // funcao de transladar e escalar:
         }
-
     }
+    else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
+        if(modo == 2){
+            fimX = x;
+            fimY = altura - y;
+            addReta(inicioX, inicioY, fimX, fimY);
+        }
+    }
+
     else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
         if(modo == 3){
             addPoligono(clicks, cordenadas);
             clicks = 0;
             cont_cord = 0;
-        } else if(modo == 2){
-            addReta(xReta[0], yReta[0], xReta[1], yReta[1]);
-            cont_XY = 0;
         }
-
     }
     /*if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN){
 
