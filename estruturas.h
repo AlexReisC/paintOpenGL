@@ -4,6 +4,13 @@
 #define MAX_VERTICES 20
 #define altura 480
 #define largura 640
+#define TOLERANCIA 7
+#define TOLERANCIA_LINHA 10
+#define FORA 0
+#define ESQUERDA 1
+#define DIREITA 2
+#define ABAIXO 4
+#define ACIMA 8
 
 typedef struct{
     GLint x;
@@ -37,4 +44,4 @@ GLint cordenadas[MAX_VERTICES];
 GLint cont_cord = 0;
 GLint inicioX, inicioY, fimX, fimY;
 GLint linhaSelecionada = 0;
-GLint tolerancia = 7;
+char pickObjeto[3];

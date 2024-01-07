@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <GL/glut.h>
 #include <stdio.h>
+#include <string.h>
 #include "estruturas.h"
 #include "funcoesDesenho.h"
 
@@ -115,11 +116,71 @@ int selecionarPonto(int mx, int my, int t){
     return 0;
 }
 
-int selecionarReta(int mx, int my, int t){
-
+int calcularCodigo(int mx, int my, int px, int py){
+    int codigo = FORA;
+    if(px < mx - TOLERANCIA_LINHA){
+        codigo |= ESQUERDA;
+    }
+    else if(px > mx + TOLERANCIA_LINHA){
+        codigo |= DIREITA;
+    }
+    else if(py < my - TOLERANCIA_LINHA){
+        codigo |= ABAIXO;
+    }
+    else if(py > my + TOLERANCIA_LINHA){
+        codigo |= ACIMA;
+    }
+    return codigo;
 }
 
-void desenharPaletaDeCores(int button, int state, int x, int y){
+int selecionarLinha(int mx, int my, int px1, int py1, int px2, int py2){
+    int codigo, codigo1, codigo2;
+    int dentro = 0, terminou = 0;
+    int xmin = mx - TOLERANCIA_LINHA;
+    int xmax = mx + TOLERANCIA_LINHA;
+    int ymin = my - TOLERANCIA_LINHA;
+    int ymax = my + TOLERANCIA_LINHA;
+
+    while(!terminou){
+        codigo1 = calcularCodigo(mx, my, px1, py1);
+        codigo2 = calcularCodigo(mx, my, px2, py2);
+
+        if(codigo1 == 0 || codigo2 == 0){
+            dentro = 1;
+            terminou = 1;
+        }
+        else if(codigo1 & codigo2){
+            terminou = 1;
+        }
+        else {
+            int x0, y0;
+            codigo = codigo1 ? codigo1 : codigo2;
+            if(codigo & ESQUERDA){
+                x0 = xmin;
+                y0 = py1 + (xmin-px1)*(py2-py1) / (px2-px1);
+            } else if(codigo & DIREITA){
+                x0 = xmax;
+                y0 = py1 + (xmax-px1)*(py2-py1) / (px2-px1);
+            } else if(codigo & ABAIXO){
+                y0 = ymin;
+                x0 = px1 + (ymin-py1)*(px2-px1) / (py2-py1);
+            } else if(codigo & ACIMA){
+                y0 = ymax;
+                x0 = px1 + (ymax-py1)*(px2-px1) / (py2-py1);
+            }
+            if(codigo == codigo1){
+                px1 = x;
+                py1 = y;
+            } else {
+                px2 = x;
+                py2 = y;
+            }
+        }
+    }
+    return dentro;
+}
+
+void desenharPaletaDeCores(int x, int y){
 
 }
 
@@ -136,11 +197,15 @@ void desenharMenu(){
     glEnd();
 }
 
-
 void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
         case 'r':// vermelho
+            if(modo == 4){
+                char str[] = "rt";
+                strcpy(pickObjeto,str);
+                break;
+            }
             corAtual[0] = 1.0;
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
@@ -165,6 +230,11 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             break;
         case 'P':
         case 'p':// roxo
+            if(modo == 4){
+                char str[] = "pl";
+                strcpy(pickObjeto,str);
+                break;
+            }
             corAtual[0] = 1.0;
             corAtual[1] = 0.0;
             corAtual[2] = 1.0;
@@ -183,6 +253,11 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             break;
         case 'D':
         case 'd': // default: preto
+            if(modo == 4){
+                char str[] = "pt";
+                strcpy(pickObjeto,str);
+                break;
+            }
             corAtual[0] = 0.0;
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
@@ -196,8 +271,7 @@ void gerenciaTeclado(unsigned char key, int x, int y){
         case '3':
             modo = 3;
             break;
-        case 'S':
-        case 's':
+        case '4':
             modo = 4;
             break;
     }
@@ -213,14 +287,26 @@ void gerenciaMouse(int button, int state, int x, int y){
             inicioX = x;
             inicioY = altura - y;
         }
-        else if(modo == 3){ // vira else se nao houver outros 'modos'
+        else if(modo == 3){
             cordenadas[cont_cord] = x;
             cordenadas[cont_cord+1] = altura-y;
             clicks++;
             cont_cord = cont_cord + 2;
         }
         else{
-            int resp = selecionarPonto(x, altura-y, tolerancia);
+            if(strcmp(pickObjeto,"pt") == 0){
+                int resp = selecionarPonto(x, altura-y, TOLERANCIA);
+
+            }
+            else if(strcmp(pickObjeto,"rt") == 0){
+                /*for(int i = 0; i < qtd_retas; i++){
+                    linhaSelecionada = selecionarLinha(x, y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
+                    if(!linhaSelecionada){
+                        break;
+                    }
+                }*/
+            }
+
             // funcao de transladar e escalar:
         }
     }
@@ -239,9 +325,7 @@ void gerenciaMouse(int button, int state, int x, int y){
             cont_cord = 0;
         }
     }
-    /*if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN){
 
-    }*/
     glutPostRedisplay();
 }
 
