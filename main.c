@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "estruturas.h"
-#include "funcoesDesenho.h"
 
 /*
     - desenhar o objeto com base na tecla e na posicao mapeada
@@ -91,7 +90,7 @@ void addPoligono(int n, int vet[]){
         j = j + 2;
     }
 
-    qtd_poligonos = qtd_poligonos + 1;
+    qtd_poligonos++;
 }
 
 void desenharPoligono(){
@@ -141,7 +140,7 @@ int selecionarLinha(int mx, int my, int px1, int py1, int px2, int py2){
     int ymin = my - TOLERANCIA_LINHA;
     int ymax = my + TOLERANCIA_LINHA;
 
-    while(!terminou){
+    while(terminou != 1){
         codigo1 = calcularCodigo(mx, my, px1, py1);
         codigo2 = calcularCodigo(mx, my, px2, py2);
 
@@ -169,15 +168,30 @@ int selecionarLinha(int mx, int my, int px1, int py1, int px2, int py2){
                 x0 = px1 + (ymax-py1)*(px2-px1) / (py2-py1);
             }
             if(codigo == codigo1){
-                px1 = x;
-                py1 = y;
+                px1 = x0;
+                py1 = y0;
             } else {
-                px2 = x;
-                py2 = y;
+                px2 = x0;
+                py2 = y0;
             }
         }
     }
     return dentro;
+}
+
+int selecionarPoligono(int mx, int my, Poligono p){
+    int i, j, num_intersecoes = 0;
+    for (int i = 0, j = p.qtd_vertices-1; i < p.qtd_vertices; j = i++){
+        if((p.vertices[i].y > my) != (p.vertices[j].y > my) && (mx < p.vertices[i].x + (my - p.vertices[i].y) * (p.vertices[j].x - p.vertices[i].x) / (p.vertices[j].y - p.vertices[i].y))){
+            if(p.vertices[i].y != p.vertices[j].y){
+                num_intersecoes++;
+            }
+        }
+        else if(p.vertices[i].y == my && p.vertices[j].y > my && p.vertices[i].x < mx){
+            num_intersecoes++;
+        }
+    }
+    return (num_intersecoes % 2 != 0);
 }
 
 void desenharPaletaDeCores(int x, int y){
@@ -187,14 +201,6 @@ void desenharPaletaDeCores(int x, int y){
 void desenharMenu(){
     //desenha quadrados
 
-    glLineWidth(3.0);
-    glBegin(GL_QUADS);
-        glColor3f(0.0,0.0,0.0);
-        glVertex2i(50,100);
-        glVertex2i(50,50);
-        glVertex2i(100,50);
-        glVertex2i(100,100);
-    glEnd();
 }
 
 void gerenciaTeclado(unsigned char key, int x, int y){
@@ -296,18 +302,31 @@ void gerenciaMouse(int button, int state, int x, int y){
         else{
             if(strcmp(pickObjeto,"pt") == 0){
                 int resp = selecionarPonto(x, altura-y, TOLERANCIA);
-
+                //translacao, escalonamento e rotacao:
             }
             else if(strcmp(pickObjeto,"rt") == 0){
-                /*for(int i = 0; i < qtd_retas; i++){
-                    linhaSelecionada = selecionarLinha(x, y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
-                    if(!linhaSelecionada){
+                for (int i = 0; i < qtd_retas; i++){
+                    linhaSelecionada = selecionarLinha(x, altura-y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
+                    if(linhaSelecionada == 1){
                         break;
                     }
-                }*/
+                }
+                //translacao, escalonamento e rotacao:
             }
+            else if(strcmp(pickObjeto,"pl") == 0){
+                int paridade;
+                for (int i = 0; i < qtd_poligonos; i++){
+                    paridade = selecionarPoligono(x, altura-y, poligonos[i]);
+                    if(paridade != 0){
+                        printf("Poligono %d ", paridade);
+                        break;
+                    } else{
+                        printf("Nao e poligono ");
+                        break;
+                    }
+                }
 
-            // funcao de transladar e escalar:
+            }
         }
     }
     else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
