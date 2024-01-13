@@ -2,8 +2,8 @@
 #define MAX_RETAS 100
 #define MAX_POLIGONOS 100
 #define MAX_VERTICES 20
-#define altura 480
-#define largura 640
+#define ALTURA 480
+#define LARGURA 640
 #define TOLERANCIA 7
 #define TOLERANCIA_LINHA 10
 #define FORA 0
@@ -45,3 +45,5 @@ GLint cont_cord = 0;
 GLint inicioX, inicioY, fimX, fimY;
 GLint linhaSelecionada = 0;
 char pickObjeto[3];
+GLint pontoInicioX, pontoInicioY, pontoFimX, pontoFimY;
+int pontoSelecionado, transladarPonto = 0;

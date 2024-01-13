@@ -5,10 +5,6 @@
 #include "estruturas.h"
 
 /*
-    - desenhar o objeto com base na tecla e na posicao mapeada
-    -- passar como parametro para a funcao addPonto()
-    -- definir cor do objeto
-    - selecionar objeto
     - excluir objeto
     - transformacoes geometricas
     -- arrastar e soltar
@@ -40,12 +36,24 @@ void addPonto(int x, int y){
 }
 
 void desenharPontos(){
-    glPointSize(6.0);
+    glPointSize(7.0);
     glBegin(GL_POINTS);
     for (int i = 0; i < qtd_pontos; i++){
         glColor3f(pontos[i].cor[0], pontos[i].cor[1], pontos[i].cor[2]);
         glVertex2i(pontos[i].x, pontos[i].y);
     }
+    glEnd();
+}
+
+void desenharPonto(){
+    glPointSize(7.0);
+    glBegin(GL_POINTS);
+    for (int i = 0; i < qtd_pontos; i++){
+        if(pontoInicioX == pontos[i].x && pontoInicioY == pontos[i].y){
+            glColor3f(pontos[i].cor[0], pontos[i].cor[1], pontos[i].cor[2]);
+        }
+    }
+        glVertex2i(pontoInicioX, pontoInicioY);
     glEnd();
 }
 
@@ -108,6 +116,8 @@ int selecionarPonto(int mx, int my, int t){
     for(int i = 0; i < qtd_pontos; i++){
         if(mx <= pontos[i].x + t && mx >= pontos[i].x - t){
             if(my <= pontos[i].y + t && my >= pontos[i].y - t){
+                pontoInicioX = pontos[i].x;
+                pontoInicioY = pontos[i].y;
                 return 1;
             }
         }
@@ -194,15 +204,6 @@ int selecionarPoligono(int mx, int my, Poligono p){
     return (num_intersecoes % 2 != 0);
 }
 
-void desenharPaletaDeCores(int x, int y){
-
-}
-
-void desenharMenu(){
-    //desenha quadrados
-
-}
-
 void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
@@ -287,44 +288,42 @@ void gerenciaTeclado(unsigned char key, int x, int y){
 void gerenciaMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
         if(modo == 1){
-          addPonto(x, altura-y);
+          addPonto(x, ALTURA-y);
+          printf("%d %d ", x, ALTURA-y);
         }
         else if(modo == 2){
             inicioX = x;
-            inicioY = altura - y;
+            inicioY = y;
         }
         else if(modo == 3){
             cordenadas[cont_cord] = x;
-            cordenadas[cont_cord+1] = altura-y;
+            cordenadas[cont_cord+1] = ALTURA-y;
             clicks++;
             cont_cord = cont_cord + 2;
         }
         else{
             if(strcmp(pickObjeto,"pt") == 0){
-                int resp = selecionarPonto(x, altura-y, TOLERANCIA);
-                //translacao, escalonamento e rotacao:
+                pontoSelecionado = selecionarPonto(x, ALTURA-y, TOLERANCIA);
             }
             else if(strcmp(pickObjeto,"rt") == 0){
                 for (int i = 0; i < qtd_retas; i++){
-                    linhaSelecionada = selecionarLinha(x, altura-y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
+                    linhaSelecionada = selecionarLinha(x, ALTURA-y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
                     if(linhaSelecionada == 1){
                         break;
                     }
                 }
-                //translacao, escalonamento e rotacao:
             }
             else if(strcmp(pickObjeto,"pl") == 0){
-                int paridade;
+                int paridade = 0;
                 for (int i = 0; i < qtd_poligonos; i++){
-                    paridade = selecionarPoligono(x, altura-y, poligonos[i]);
+                    paridade = selecionarPoligono(x, ALTURA-y, poligonos[i]);
                     if(paridade != 0){
-                        printf("Poligono %d ", paridade);
                         break;
                     } else{
-                        printf("Nao e poligono ");
-                        break;
+                        continue;
                     }
                 }
+
 
             }
         }
@@ -332,8 +331,23 @@ void gerenciaMouse(int button, int state, int x, int y){
     else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP){
         if(modo == 2){
             fimX = x;
-            fimY = altura - y;
+            fimY = ALTURA - y;
             addReta(inicioX, inicioY, fimX, fimY);
+        } else if(modo == 4){
+            if(pontoSelecionado == 1){
+                pontoFimX = x;
+                pontoFimY = ALTURA - y;
+                transladarPonto = 1;
+                for (int i = 0; i < qtd_pontos; i++){
+                    if(pontos[i].x == pontoInicioX && pontos[i].y == pontoInicioY){
+                        pontos[i].x = pontoFimX;
+                        pontos[i].y = pontoFimY;
+                    }
+                }
+            }
+            else if(linhaSelecionada == 1){
+
+            }
         }
     }
 
@@ -365,29 +379,40 @@ void display(void){
     glLoadIdentity();
 
     desenharPontos();
+
+    if(transladarPonto == 1){
+        glPushMatrix();
+        glTranslatef((float)pontoFimX, (float)pontoFimY, 0.0);
+        desenharPonto();
+        glPopMatrix();
+    }
+
+    transladarPonto = 0;
+
+
     desenharRetas();
     desenharPoligono();
-//    desenharMenu();
+
     /*
-    glTranslatef(,,0);
     glScalef(,,1.0);
     glRotatef(,,,1.0);
     */
 
     glFlush();
+    glutSwapBuffers();
 }
 
 int init(void){
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.0,largura,0.0,altura);
+    gluOrtho2D(0.0,LARGURA,0.0,ALTURA);
 }
 
 int main(int argc, char **argv)
 {
     glutInit(&argc,argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(largura, altura);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(LARGURA, ALTURA);
     glutInitWindowPosition(200,0);
     glutCreateWindow("Paint OpenGL");
 
