@@ -86,6 +86,19 @@ void desenharRetas(){
     glEnd();
 }
 
+void desenharReta(){
+    glLineWidth(5.0);
+    glBegin(GL_LINES);
+    for (int i = 0; i < qtd_retas; i++){
+        if(retas[i].inicio.x == pontoInicioX && retas[i].inicio.y == pontoInicioY){
+            glColor3f(retas[i].inicio.cor[0], retas[i].inicio.cor[1], retas[i].inicio.cor[2]);
+        }
+    }
+        glVertex2i(pontoInicioX, pontoInicioY);
+        glVertex2i(pontoFimX, pontoFimY);
+    glEnd();
+}
+
 void addPoligono(int n, int vet[]){
     poligonos[qtd_poligonos].qtd_vertices = n;
     int j = 0;
@@ -289,11 +302,10 @@ void gerenciaMouse(int button, int state, int x, int y){
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
         if(modo == 1){
           addPonto(x, ALTURA-y);
-          printf("%d %d ", x, ALTURA-y);
         }
         else if(modo == 2){
             inicioX = x;
-            inicioY = y;
+            inicioY = ALTURA-y;
         }
         else if(modo == 3){
             cordenadas[cont_cord] = x;
@@ -309,7 +321,10 @@ void gerenciaMouse(int button, int state, int x, int y){
                 for (int i = 0; i < qtd_retas; i++){
                     linhaSelecionada = selecionarLinha(x, ALTURA-y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
                     if(linhaSelecionada == 1){
-                        break;
+                        pontoInicioX = retas[i].inicio.x;
+                        pontoInicioY = retas[i].inicio.y;
+                        pontoFimX = retas[i].fim.x;
+                        pontoFimY = retas[i].fim.y;
                     }
                 }
             }
@@ -323,7 +338,6 @@ void gerenciaMouse(int button, int state, int x, int y){
                         continue;
                     }
                 }
-
 
             }
         }
@@ -346,7 +360,20 @@ void gerenciaMouse(int button, int state, int x, int y){
                 }
             }
             else if(linhaSelecionada == 1){
-
+                aux1 = x;
+                aux2 = ALTURA - y;
+                transladarLinha = 1;
+                float transX = aux1 - pontoInicioX;
+                float transY = aux2 - pontoInicioY;
+                for (int i = 0; i < qtd_retas; i++){
+                    if((retas[i].inicio.x == pontoInicioX) && (retas[i].inicio.y == pontoInicioY) && (retas[i].fim.x == pontoFimX) && (retas[i].fim.y == pontoFimY)){
+                        // Transladar a reta
+                        retas[i].inicio.x += transX;
+                        retas[i].inicio.y += transY;
+                        retas[i].fim.x += transX;
+                        retas[i].fim.y += transY;
+                    }
+                }
             }
         }
     }
@@ -389,8 +416,20 @@ void display(void){
 
     transladarPonto = 0;
 
-
+    glLoadIdentity();
     desenharRetas();
+
+    if(transladarLinha == 1){
+        float a, b;
+        a = aux1 - pontoInicioX;
+        b = aux2 - pontoInicioY;
+        glPushMatrix();
+        glTranslatef(a, b, 0.0);
+        desenharReta();
+        glPopMatrix();
+    }
+    transladarLinha = 0;
+    glLoadIdentity();
     desenharPoligono();
 
     /*

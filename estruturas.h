@@ -45,5 +45,5 @@ GLint cont_cord = 0;
 GLint inicioX, inicioY, fimX, fimY;
 GLint linhaSelecionada = 0;
 char pickObjeto[3];
-GLint pontoInicioX, pontoInicioY, pontoFimX, pontoFimY;
-int pontoSelecionado, transladarPonto = 0;
+GLint pontoInicioX, pontoInicioY, pontoFimX, pontoFimY, aux1, aux2;
+int pontoSelecionado, transladarPonto = 0, transladarLinha = 0;
