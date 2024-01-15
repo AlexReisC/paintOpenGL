@@ -7,14 +7,9 @@
 /*
     - excluir objeto
     - transformacoes geometricas
-    -- arrastar e soltar
     -- rotacionar em relacao ao centro do objeto
     -- escalar em relacao ao centro do objeto
 
-
-    Transladar: pressionar em cima do objeto e soltar em um local
-    -> Algoritmo de selecao de area
-    -> GLUT_LEFT_BUTTON, GLUT_DOWN e GLUT_UP
     Rotacionar: seta esquerda e direita, rotaciona 90 graus
     -> Algoritmo de selecao de area
     -> KEY_LEFT e KEY_RIGHT
