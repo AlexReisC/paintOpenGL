@@ -114,7 +114,7 @@ void addPoligono(int n, int vet[]){
     qtd_poligonos++;
 }
 
-void desenharPoligono(){
+void desenharPoligonos(){
     for(int i = 0; i < qtd_poligonos; i++){
         glBegin(GL_LINE_LOOP);
         for(int j = 0; j < poligonos[i].qtd_vertices; j++){
@@ -123,6 +123,21 @@ void desenharPoligono(){
         }
         glEnd();
     }
+}
+
+void desenharPoligono(){
+    for (int i = 0; i < qtd_poligonos; i++){
+        for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+            if(poligonos[i].vertices[j].x == auxiliar.vertices[j].x && poligonos[i].vertices[j].y == auxiliar.vertices[j].y){
+                glColor3f(poligonos[i].vertices[j].cor[0],poligonos[i].vertices[j].cor[1],poligonos[i].vertices[j].cor[2]);
+            }
+        }
+    }
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < auxiliar.qtd_vertices; i++){
+        glVertex2i(auxiliar.vertices[i].x, auxiliar.vertices[i].y);
+    }
+    glEnd();
 }
 
 int selecionarPonto(int mx, int my, int t){
@@ -329,12 +344,12 @@ void gerenciaMouse(int button, int state, int x, int y){
                 }
             }
             else if(strcmp(pickObjeto,"pl") == 0){
-                int paridade = 0;
                 for (int i = 0; i < qtd_poligonos; i++){
-                    paridade = selecionarPoligono(x, ALTURA-y, poligonos[i]);
-                    if(paridade != 0){
+                    poligonoSelecionado = selecionarPoligono(x, ALTURA-y, poligonos[i]);
+                    if(poligonoSelecionado == 1){
+                        auxiliar = poligonos[i];
                         break;
-                    } else{
+                    } else {
                         continue;
                     }
                 }
@@ -367,11 +382,25 @@ void gerenciaMouse(int button, int state, int x, int y){
                 float transY = aux2 - pontoInicioY;
                 for (int i = 0; i < qtd_retas; i++){
                     if((retas[i].inicio.x == pontoInicioX) && (retas[i].inicio.y == pontoInicioY) && (retas[i].fim.x == pontoFimX) && (retas[i].fim.y == pontoFimY)){
-                        // Transladar a reta
                         retas[i].inicio.x += transX;
                         retas[i].inicio.y += transY;
                         retas[i].fim.x += transX;
                         retas[i].fim.y += transY;
+                    }
+                }
+            }
+            else if(poligonoSelecionado == 1){
+                aux1 = x;
+                aux2 = ALTURA - y;
+                transladarPoligono = 1;
+                float transX = aux1 - auxiliar.vertices[0].x;
+                float transY = aux2 - auxiliar.vertices[0].y;
+                for (int i = 0; i < qtd_poligonos; i++){
+                    if(poligonos[i].vertices[0].x == auxiliar.vertices[0].x && poligonos[i].vertices[0].y == auxiliar.vertices[0].y){
+                        for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                            poligonos[i].vertices[j].x += transX;
+                            poligonos[i].vertices[j].y += transY;
+                        }
                     }
                 }
             }
@@ -429,9 +458,20 @@ void display(void){
         glPopMatrix();
     }
     transladarLinha = 0;
-    glLoadIdentity();
-    desenharPoligono();
 
+    glLoadIdentity();
+    desenharPoligonos();
+
+    if(transladarPoligono == 1){
+        float a, b;
+        a = aux1 - auxiliar.vertices[0].x;
+        b = aux2 - auxiliar.vertices[0].y;
+        glPushMatrix();
+        glTranslatef(a, b, 0.0);
+        desenharPoligono();
+        glPopMatrix();
+    }
+    transladarPoligono = 0;
     /*
     glScalef(,,1.0);
     glRotatef(,,,1.0);
