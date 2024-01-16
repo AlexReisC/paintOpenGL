@@ -321,12 +321,16 @@ void gerenciaMouse(int button, int state, int x, int y){
         else{
             if(strcmp(pickObjeto,"pt") == 0){
                 pontoSelecionado = selecionarPonto(x, ALTURA-y, TOLERANCIA);
+                linhaSelecionada = 0;
+                poligonoSelecionado = 0;
             }
             else if(strcmp(pickObjeto,"rt") == 0){
                 for (int i = 0; i < qtd_retas; i++){
                     linhaSelecionada = selecionarLinha(x, ALTURA-y, retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
                     if(linhaSelecionada == 1){
                         retaAuxiliar = retas[i];
+                        pontoSelecionado = 0;
+                        poligonoSelecionado = 0;
                         break;
                     }
                 }
@@ -336,6 +340,8 @@ void gerenciaMouse(int button, int state, int x, int y){
                     poligonoSelecionado = selecionarPoligono(x, ALTURA-y, poligonos[i]);
                     if(poligonoSelecionado == 1){
                         poligonoAuxiliar = poligonos[i];
+                        pontoSelecionado = 0;
+                        linhaSelecionada = 0;
                         break;
                     } else {
                         continue;
@@ -436,10 +442,8 @@ void display(void){
         desenharPonto();
         glPopMatrix();
     }
-
     transladarPonto = 0;
 
-    glLoadIdentity();
     desenharRetas();
 
     if(transladarLinha == 1){
@@ -453,7 +457,6 @@ void display(void){
     }
     transladarLinha = 0;
 
-    glLoadIdentity();
     desenharPoligonos();
 
     if(transladarPoligono == 1){
