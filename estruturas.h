@@ -46,7 +46,7 @@ GLint inicioX, inicioY, fimX, fimY;
 GLint pontoSelecionado, linhaSelecionada = 0, poligonoSelecionado = 0;
 char pickObjeto[3];
 GLint pontoFimX, pontoFimY;
-int transladarPonto = 0, transladarLinha = 0, transladarPoligono = 0;
+int transladarAtivacao = 0, transladarPonto = 0, transladarLinha = 0, transladarPoligono = 0;
 Poligono poligonoAuxiliar;
 Ponto pontoAuxiliar;
 Reta retaAuxiliar;

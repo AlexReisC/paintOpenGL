@@ -287,6 +287,10 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
             break;
+        case 'T':
+        case 't':
+            transladarAtivacao = 1 - transladarAtivacao;
+            break;
         case '1':
             modo = 1;
             break;
@@ -321,8 +325,12 @@ void gerenciaMouse(int button, int state, int x, int y){
         else{
             if(strcmp(pickObjeto,"pt") == 0){
                 pontoSelecionado = selecionarPonto(x, ALTURA-y, TOLERANCIA);
-                linhaSelecionada = 0;
-                poligonoSelecionado = 0;
+                if(pontoSelecionado == 1){
+                    linhaSelecionada = 0;
+                    poligonoSelecionado = 0;
+                    transladarLinha = 0;
+                    transladarPoligono = 0;
+                }
             }
             else if(strcmp(pickObjeto,"rt") == 0){
                 for (int i = 0; i < qtd_retas; i++){
@@ -331,6 +339,8 @@ void gerenciaMouse(int button, int state, int x, int y){
                         retaAuxiliar = retas[i];
                         pontoSelecionado = 0;
                         poligonoSelecionado = 0;
+                        transladarPonto = 0;
+                        transladarPoligono = 0;
                         break;
                     }
                 }
@@ -342,6 +352,8 @@ void gerenciaMouse(int button, int state, int x, int y){
                         poligonoAuxiliar = poligonos[i];
                         pontoSelecionado = 0;
                         linhaSelecionada = 0;
+                        transladarPonto = 0;
+                        transladarLinha = 0;
                         break;
                     } else {
                         continue;
@@ -358,45 +370,53 @@ void gerenciaMouse(int button, int state, int x, int y){
             addReta(inicioX, inicioY, fimX, fimY);
         } else if(modo == 4){
             if(pontoSelecionado == 1){
-                pontoFimX = x;
-                pontoFimY = ALTURA - y;
-                transladarPonto = 1;
-                for (int i = 0; i < qtd_pontos; i++){
-                    if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
-                        pontos[i].x = pontoFimX;
-                        pontos[i].y = pontoFimY;
+                if(transladarAtivacao == 1){
+                    pontoFimX = x;
+                    pontoFimY = ALTURA - y;
+                    transladarPonto = 1;
+                    for (int i = 0; i < qtd_pontos; i++){
+                        if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
+                            pontos[i].x = pontoFimX;
+                            pontos[i].y = pontoFimY;
+                        }
                     }
                 }
+
             }
             else if(linhaSelecionada == 1){
-                pontoFimX = x;
-                pontoFimY = ALTURA - y;
-                transladarLinha = 1;
-                float transX = pontoFimX - retaAuxiliar.inicio.x;
-                float transY = pontoFimY - retaAuxiliar.inicio.y;
-                for (int i = 0; i < qtd_retas; i++){
-                    if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
-                        retas[i].inicio.x += transX;
-                        retas[i].inicio.y += transY;
-                        retas[i].fim.x += transX;
-                        retas[i].fim.y += transY;
+                if(transladarAtivacao == 1){
+                    pontoFimX = x;
+                    pontoFimY = ALTURA - y;
+                    transladarLinha = 1;
+                    float transX = pontoFimX - retaAuxiliar.inicio.x;
+                    float transY = pontoFimY - retaAuxiliar.inicio.y;
+                    for (int i = 0; i < qtd_retas; i++){
+                        if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
+                            retas[i].inicio.x += transX;
+                            retas[i].inicio.y += transY;
+                            retas[i].fim.x += transX;
+                            retas[i].fim.y += transY;
+                        }
                     }
                 }
             }
             else if(poligonoSelecionado == 1){
-                pontoFimX = x;
-                pontoFimY = ALTURA - y;
-                transladarPoligono = 1;
-                float transX = pontoFimX - poligonoAuxiliar.vertices[0].x;
-                float transY = pontoFimY - poligonoAuxiliar.vertices[0].y;
-                for (int i = 0; i < qtd_poligonos; i++){
-                    if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
-                        for (int j = 0; j < poligonos[i].qtd_vertices; j++){
-                            poligonos[i].vertices[j].x += transX;
-                            poligonos[i].vertices[j].y += transY;
+                if(transladarAtivacao == 1 ){
+                    pontoFimX = x;
+                    pontoFimY = ALTURA - y;
+                    transladarPoligono = 1;
+                    float transX = pontoFimX - poligonoAuxiliar.vertices[0].x;
+                    float transY = pontoFimY - poligonoAuxiliar.vertices[0].y;
+                    for (int i = 0; i < qtd_poligonos; i++){
+                        if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
+                            for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                                poligonos[i].vertices[j].x += transX;
+                                poligonos[i].vertices[j].y += transY;
+                            }
                         }
                     }
                 }
+
             }
         }
     }
@@ -434,7 +454,7 @@ void display(void){
 
     desenharPontos();
 
-    if(transladarPonto == 1){
+    if(transladarAtivacao == 1  && transladarPonto == 1){
         float deslX = pontoFimX - pontoAuxiliar.x;
         float deslY = pontoFimY - pontoAuxiliar.y;
         glPushMatrix();
@@ -442,11 +462,10 @@ void display(void){
         desenharPonto();
         glPopMatrix();
     }
-    transladarPonto = 0;
 
     desenharRetas();
 
-    if(transladarLinha == 1){
+    if(transladarAtivacao == 1 && transladarLinha == 1){
         float deslX, deslY;
         deslX = pontoFimX - retaAuxiliar.inicio.x;
         deslY = pontoFimY - retaAuxiliar.inicio.y;
@@ -455,23 +474,18 @@ void display(void){
         desenharReta();
         glPopMatrix();
     }
-    transladarLinha = 0;
-
     desenharPoligonos();
 
-    if(transladarPoligono == 1){
-        float a, b;
-        a = pontoFimX - poligonoAuxiliar.vertices[0].x;
-        b = pontoFimY - poligonoAuxiliar.vertices[0].y;
+    if(transladarAtivacao == 1 && transladarPoligono == 1){
+        float deslX, deslY;
+        deslX = pontoFimX - poligonoAuxiliar.vertices[0].x;
+        deslY = pontoFimY - poligonoAuxiliar.vertices[0].y;
         glPushMatrix();
-        glTranslatef(a, b, 0.0);
+        glTranslatef(deslX, deslY, 0.0);
         desenharPoligono();
         glPopMatrix();
     }
-    transladarPoligono = 0;
-
     //glRotatef(,,,1.0);
-
 
     glFlush();
     glutSwapBuffers();
@@ -488,7 +502,7 @@ int main(int argc, char **argv)
     glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(LARGURA, ALTURA);
-    glutInitWindowPosition(200,0);
+    glutInitWindowPosition(400,100);
     glutCreateWindow("Paint OpenGL");
 
     glutDisplayFunc(display);
