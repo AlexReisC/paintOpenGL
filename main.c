@@ -227,8 +227,7 @@ void gerenciaTeclado(unsigned char key, int x, int y){
         case 'R':
         case 'r':// vermelho
             if(modo == 4){
-                char str[] = "rt";
-                strcpy(pickObjeto,str);
+                rotacaoAtivacao = 1 - rotacaoAtivacao;
                 break;
             }
             corAtual[0] = 1.0;
@@ -287,9 +286,20 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             corAtual[1] = 0.0;
             corAtual[2] = 0.0;
             break;
+        case 'L':
+        case 'l':
+            if(modo == 4){
+                char str[] = "rt";
+                strcpy(pickObjeto,str);
+                break;
+            }
         case 'T':
         case 't':
             transladarAtivacao = 1 - transladarAtivacao;
+            break;
+        case 'S':
+        case 's':
+            escalaAtivacao= 1 - escalaAtivacao;
             break;
         case '1':
             modo = 1;
@@ -359,7 +369,6 @@ void gerenciaMouse(int button, int state, int x, int y){
                         continue;
                     }
                 }
-
             }
         }
     }
@@ -401,7 +410,7 @@ void gerenciaMouse(int button, int state, int x, int y){
                 }
             }
             else if(poligonoSelecionado == 1){
-                if(transladarAtivacao == 1 ){
+                if(transladarAtivacao == 1){
                     pontoFimX = x;
                     pontoFimY = ALTURA - y;
                     transladarPoligono = 1;
@@ -432,20 +441,101 @@ void gerenciaMouse(int button, int state, int x, int y){
     glutPostRedisplay();
 }
 
-// para teclas especiais, tais como F1, PgDn e Home
-/*void TeclasEspeciais(int key, int x, int y){
-    if(key == GLUT_KEY_UP) {
+void TeclasEspeciais(int key, int x, int y){
+    if(key == GLUT_KEY_END){
+        int indice;
+        if(modo == 4 && pontoSelecionado == 1){
+            for (int i = 0; i < qtd_pontos; i++){
+                if((pontos[i].x == pontoAuxiliar.x) && (pontos[i].y == pontoAuxiliar.y)){
+                    indice = i;
+                    break;
+                }
+            }
+            for (int j = indice; j < qtd_pontos-1; j++){
+                pontos[j].x = pontos[j+1].x;
+                pontos[j].y = pontos[j+1].y;
+                pontos[j].cor[0] = pontos[j+1].cor[0];
+                pontos[j].cor[1] = pontos[j+1].cor[1];
+                pontos[j].cor[2] = pontos[j+1].cor[2];
+            }
+            qtd_pontos--;
+        }
+        else if(modo == 4 && linhaSelecionada == 1){
+            for (int i = 0; i < qtd_retas; i++){
+                if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
+                    indice = i;
+                }
+            }
+            for (int j = indice; j < qtd_retas-1; j++){
+                retas[j].inicio.x = retas[j+1].inicio.x;
+                retas[j].inicio.y = retas[j+1].inicio.y;
+                retas[j].fim.x = retas[j+1].fim.x;
+                retas[j].fim.y = retas[j+1].fim.y;
+                retas[j].inicio.cor[0] = retas[j+1].inicio.cor[0];
+                retas[j].inicio.cor[1] = retas[j+1].inicio.cor[1];
+                retas[j].inicio.cor[2] = retas[j+1].inicio.cor[2];
+                retas[j].fim.cor[0] = retas[j+1].fim.cor[0];
+                retas[j].fim.cor[1] = retas[j+1].fim.cor[1];
+                retas[j].fim.cor[2] = retas[j+1].fim.cor[2];
+            }
+            qtd_retas--;
+        }
+        else if(modo == 4 && poligonoSelecionado == 1){
+            for (int i = 0; i < qtd_poligonos; i++){
+                for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                    if((poligonos[i].vertices[j].x == poligonoAuxiliar.vertices[j].x) && (poligonos[i].vertices[j].y == poligonoAuxiliar.vertices[j].y)
+                       && (poligonos[i].qtd_vertices == poligonoAuxiliar.qtd_vertices)){
+                        indice = i;
+                        break;
+                    }
+                }
+            }
+
+            for (int i = indice; i < qtd_poligonos-1; i++){
+                poligonos[i].qtd_vertices = poligonos[i+1].qtd_vertices;
+                for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                    poligonos[i].vertices[j].x = poligonos[i+1].vertices[j].x;
+                    poligonos[i].vertices[j].y = poligonos[i+1].vertices[j].y;
+                    poligonos[i].vertices[j].cor[0] = poligonos[i+1].vertices[j].cor[0];
+                    poligonos[i].vertices[j].cor[1] = poligonos[i+1].vertices[j].cor[1];
+                    poligonos[i].vertices[j].cor[2] = poligonos[i+1].vertices[j].cor[2];
+                }
+            }
+            qtd_poligonos--;
+        }
+    }
+    else if(key == GLUT_KEY_UP) {
         if(modo == 4){
-            if(linhaSelecionada == 1){
-                glScalef();
+            if(linhaSelecionada == 1 && escalaAtivacao == 1){
+                if(incrementaEscala < 10)
+                incrementaEscala++;
             }
         }
     }
-    if(key == GLUT_KEY_DOWN) {
+    else if(key == GLUT_KEY_DOWN) {
+        if(modo == 4){
+            if(linhaSelecionada == 1 && escalaAtivacao == 1){
+                if(incrementaEscala > 0)
+                incrementaEscala--;
+            }
+        }
+    }
+    else if(key == GLUT_KEY_RIGHT){
+        if(linhaSelecionada == 1){
 
+        }
+    }
+    else if(key == GLUT_KEY_LEFT){
+        if(modo == 4){
+            if(linhaSelecionada == 1 && rotacaoAtivacao == 1){
+                if(incrementaRotacao > 0){
+                    incrementaRotacao--;
+                }
+            }
+        }
     }
     glutPostRedisplay();
-}*/
+}
 
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT);
@@ -454,7 +544,7 @@ void display(void){
 
     desenharPontos();
 
-    if(transladarAtivacao == 1  && transladarPonto == 1){
+    if(transladarAtivacao == 1 && transladarPonto == 1){
         float deslX = pontoFimX - pontoAuxiliar.x;
         float deslY = pontoFimY - pontoAuxiliar.y;
         glPushMatrix();
@@ -474,6 +564,14 @@ void display(void){
         desenharReta();
         glPopMatrix();
     }
+
+    if(rotacaoAtivacao == 1){
+        glPushMatrix();
+        glRotatef(90.0,0.0,0.0,1.0);
+        desenharReta();
+        glPopMatrix();
+    }
+
     desenharPoligonos();
 
     if(transladarAtivacao == 1 && transladarPoligono == 1){
@@ -485,7 +583,6 @@ void display(void){
         desenharPoligono();
         glPopMatrix();
     }
-    //glRotatef(,,,1.0);
 
     glFlush();
     glutSwapBuffers();
@@ -508,7 +605,7 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutKeyboardFunc(gerenciaTeclado);
     glutMouseFunc(gerenciaMouse);
-//    glutSpecialFunc(TeclasEspeciais);
+    glutSpecialFunc(TeclasEspeciais);
 
     init();
     glutMainLoop();
