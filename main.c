@@ -174,6 +174,74 @@ int selecionarPoligono(int mx, int my, Poligono p){
     return (num_intersecoes % 2 != 0);
 }
 
+void transladarPonto(float deslocX, float deslocY){
+    for (int i = 0; i < qtd_pontos; i++){
+        if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
+            pontos[i].x += deslocX;
+            pontos[i].y += deslocY;
+            break;
+        }
+    }
+}
+
+void transladarReta(float deslocX, float deslocY){
+    for (int i = 0; i < qtd_retas; i++){
+        if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
+            retas[i].inicio.x += deslocX;
+            retas[i].inicio.y += deslocY;
+            retas[i].fim.x += deslocX;
+            retas[i].fim.y += deslocY;
+            break;
+        }
+    }
+}
+
+void transladarPoligono(float deslocX, float deslocY){
+    for (int i = 0; i < qtd_poligonos; i++){
+        if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
+            for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                poligonos[i].vertices[j].x += deslocX;
+                poligonos[i].vertices[j].y += deslocY;
+            }
+            break;
+        }
+    }
+}
+
+void rotacionarPonto(){
+    for (int i = 0; i < qtd_pontos; i++){
+        if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
+            pontos[i].x = pontoAuxiliar.x * cos(angulo * M_PI / 180.0) - pontoAuxiliar.y * sin(angulo * M_PI / 180.0);
+            pontos[i].y = pontoAuxiliar.x * sin(angulo * M_PI / 180.0) + pontoAuxiliar.y * cos(angulo * M_PI / 180.0);
+            break;
+        }
+    }
+}
+
+void calcularPontoMedio(){
+    pontoMedio.x = (retaAuxiliar.inicio.x + retaAuxiliar.fim.x) / 2.0;
+    pontoMedio.y = (retaAuxiliar.inicio.y + retaAuxiliar.fim.y) / 2.0;
+}
+
+void rotacionarReta(){
+    calcularPontoMedio();
+
+    glTranslatef(pontoMedio.x, pontoMedio.y, 0.0);
+    glRotatef(angulo,0.0,0.0,1.0);
+    glTranslatef(-pontoMedio.x, -pontoMedio.y, 0.0);
+
+    for (int i = 0; i < qtd_retas; i++){
+        if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
+            retas[i].inicio.x = pontoMedio.x + (retaAuxiliar.inicio.x - pontoMedio.x) * cos(angulo * M_PI / 180.0) - (retaAuxiliar.inicio.y - pontoMedio.y) * sin(angulo * M_PI / 180.0);
+            retas[i].inicio.y = pontoMedio.y + (retaAuxiliar.inicio.x - pontoMedio.x) * sin(angulo * M_PI / 180.0) + (retaAuxiliar.inicio.y - pontoMedio.y) * cos(angulo * M_PI / 180.0);
+            retas[i].fim.x = pontoMedio.x + (retaAuxiliar.fim.x - pontoMedio.x) * cos(angulo * M_PI / 180.0) - (retaAuxiliar.fim.y - pontoMedio.y) * sin(angulo * M_PI / 180.0);
+            retas[i].fim.y = pontoMedio.y + (retaAuxiliar.fim.x - pontoMedio.x) * sin(angulo * M_PI / 180.0) + (retaAuxiliar.fim.y - pontoMedio.y) * cos(angulo * M_PI / 180.0);
+        }
+    }
+}
+
+
+
 void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'R':
@@ -328,24 +396,12 @@ void gerenciaMouse(int button, int state, int x, int y){
                 if(transladarAtivacao == 1){
                     pontoFimX = x;
                     pontoFimY = ALTURA - y;
-                    int deslX = pontoFimX - pontoAuxiliar.x;
-                    int deslY = pontoFimY - pontoAuxiliar.y;
-                    for (int i = 0; i < qtd_pontos; i++){
-                        if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
-                            pontos[i].x += deslX;
-                            pontos[i].y += deslY;
-                        }
-                    }
+                    float deslX = pontoFimX - pontoAuxiliar.x;
+                    float deslY = pontoFimY - pontoAuxiliar.y;
+                    transladarPonto(deslX, deslY);
                 }
                 else if(rotacaoAtivacao == 1){
-                    rotacionarPonto = 1;
-                    for (int i = 0; i < qtd_pontos; i++){
-                        if(pontos[i].x == pontoAuxiliar.x && pontos[i].y == pontoAuxiliar.y){
-                            pontos[i].x = pontoAuxiliar.x * cos(angulo * M_PI / 180.0) - pontoAuxiliar.y * sin(angulo * M_PI / 180.0);
-                            pontos[i].y = pontoAuxiliar.x * sin(angulo * M_PI / 180.0) + pontoAuxiliar.y * cos(angulo * M_PI / 180.0);
-                            break;
-                        }
-                    }
+                    rotacionarPonto();
                 }
             }
             else if(linhaSelecionada == 1){
@@ -354,17 +410,10 @@ void gerenciaMouse(int button, int state, int x, int y){
                     pontoFimY = ALTURA - y;
                     float transX = pontoFimX - retaAuxiliar.inicio.x;
                     float transY = pontoFimY - retaAuxiliar.inicio.y;
-                    for (int i = 0; i < qtd_retas; i++){
-                        if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
-                            retas[i].inicio.x += transX;
-                            retas[i].inicio.y += transY;
-                            retas[i].fim.x += transX;
-                            retas[i].fim.y += transY;
-                        }
-                    }
+                    transladarReta(transX, transY);
                 }
-                else if(rotacaoAtivacao){
-
+                else if(rotacaoAtivacao == 1){
+                    rotacionarReta();
                 }
             }
             else if(poligonoSelecionado == 1){
@@ -373,16 +422,11 @@ void gerenciaMouse(int button, int state, int x, int y){
                     pontoFimY = ALTURA - y;
                     float transX = pontoFimX - poligonoAuxiliar.vertices[0].x;
                     float transY = pontoFimY - poligonoAuxiliar.vertices[0].y;
-                    for (int i = 0; i < qtd_poligonos; i++){
-                        if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
-                            for (int j = 0; j < poligonos[i].qtd_vertices; j++){
-                                poligonos[i].vertices[j].x += transX;
-                                poligonos[i].vertices[j].y += transY;
-                            }
-                        }
-                    }
+                    transladarPoligono(transX, transY);
                 }
+                else if(rotacaoAtivacao == 1){
 
+                }
             }
         }
     }
@@ -462,22 +506,22 @@ void TeclasEspeciais(int key, int x, int y){
         }
     }
     else if(key == GLUT_KEY_UP) {
-        if(linhaSelecionada == 1 && escalaAtivacao == 1){
+        if(escalaAtivacao == 1){
 
         }
     }
     else if(key == GLUT_KEY_DOWN) {
-        if(linhaSelecionada == 1 && escalaAtivacao == 1){
+        if(escalaAtivacao == 1){
 
         }
     }
     else if(key == GLUT_KEY_RIGHT){
-        if(pontoSelecionado == 1 && rotacaoAtivacao == 1){
+        if(rotacaoAtivacao == 1){
             angulo += 5.0;
         }
     }
     else if(key == GLUT_KEY_LEFT){
-        if(pontoSelecionado == 1 && rotacaoAtivacao == 1){
+        if(rotacaoAtivacao == 1){
             angulo -= 5.0;
         }
     }
