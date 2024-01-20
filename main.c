@@ -226,10 +226,6 @@ void calcularPontoMedio(){
 void rotacionarReta(){
     calcularPontoMedio();
 
-    glTranslatef(pontoMedio.x, pontoMedio.y, 0.0);
-    glRotatef(angulo,0.0,0.0,1.0);
-    glTranslatef(-pontoMedio.x, -pontoMedio.y, 0.0);
-
     for (int i = 0; i < qtd_retas; i++){
         if((retas[i].inicio.x == retaAuxiliar.inicio.x) && (retas[i].inicio.y == retaAuxiliar.inicio.y) && (retas[i].fim.x == retaAuxiliar.fim.x) && (retas[i].fim.y == retaAuxiliar.fim.y)){
             retas[i].inicio.x = pontoMedio.x + (retaAuxiliar.inicio.x - pontoMedio.x) * cos(angulo * M_PI / 180.0) - (retaAuxiliar.inicio.y - pontoMedio.y) * sin(angulo * M_PI / 180.0);
@@ -240,10 +236,49 @@ void rotacionarReta(){
     }
 }
 
+void calcularCentroide(){
+    centroide.x = 0;
+    centroide.y = 0;
+    for (int i = 0; i < poligonoAuxiliar.qtd_vertices; i++){
+        centroide.x += poligonoAuxiliar.vertices[i].x;
+        centroide.y += poligonoAuxiliar.vertices[i].y;
+    }
+    centroide.x /= poligonoAuxiliar.qtd_vertices;
+    centroide.y /= poligonoAuxiliar.qtd_vertices;
+}
 
+void rotacionarPoligono(){
+    calcularCentroide();
+
+    for (int i = 0; i < qtd_poligonos; i++){
+        if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
+            for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                poligonos[i].vertices[j].x = centroide.x + (poligonoAuxiliar.vertices[j].x - centroide.x) * cos(angulo * M_PI / 180.0) - (poligonoAuxiliar.vertices[j].y - centroide.y) * sin(angulo * M_PI / 180.0);
+                poligonos[i].vertices[j].y = centroide.y + (poligonoAuxiliar.vertices[j].x - centroide.x) * sin(angulo * M_PI / 180.0) + (poligonoAuxiliar.vertices[j].y - centroide.y) * cos(angulo * M_PI / 180.0);
+            }
+        }
+    }
+}
+
+void escalarReta(){
+    calcularPontoMedio();
+
+    for (int i = 0; i < qtd_retas; i++){
+        if(retas[i].inicio.x == retaAuxiliar.inicio.x && retas[i].inicio.y == retaAuxiliar.inicio.y && retas[i].fim.x == retaAuxiliar.fim.x && retas[i].fim.y == retaAuxiliar.fim.y){
+            retas[i].inicio.x *= 0.5;
+            retas[i].inicio.y *= 0.5;
+            retas[i].fim.x *= 0.5;
+            retas[i].fim.y *= 0.5;
+        }
+    }
+}
 
 void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
+        case 'Q':
+        case 'q':
+            exit(1);
+            break;
         case 'R':
         case 'r':// vermelho
             if(modo == 4){
@@ -317,9 +352,9 @@ void gerenciaTeclado(unsigned char key, int x, int y){
         case 't':
             transladarAtivacao = 1 - transladarAtivacao;
             break;
-        case 'S':
-        case 's':
-            escalaAtivacao= 1 - escalaAtivacao;
+        case 'E':
+        case 'e':
+            escalaAtivacao = 1 - escalaAtivacao;
             break;
         case '1':
             modo = 1;
@@ -415,6 +450,9 @@ void gerenciaMouse(int button, int state, int x, int y){
                 else if(rotacaoAtivacao == 1){
                     rotacionarReta();
                 }
+                else if(escalaAtivacao == 1){
+                    escalarReta();
+                }
             }
             else if(poligonoSelecionado == 1){
                 if(transladarAtivacao == 1){
@@ -425,7 +463,7 @@ void gerenciaMouse(int button, int state, int x, int y){
                     transladarPoligono(transX, transY);
                 }
                 else if(rotacaoAtivacao == 1){
-
+                    rotacionarPoligono();
                 }
             }
         }
@@ -507,22 +545,28 @@ void TeclasEspeciais(int key, int x, int y){
     }
     else if(key == GLUT_KEY_UP) {
         if(escalaAtivacao == 1){
-
+            escalaY += 0.5;
         }
     }
     else if(key == GLUT_KEY_DOWN) {
         if(escalaAtivacao == 1){
-
+            escalaY -= 0.5;
         }
     }
     else if(key == GLUT_KEY_RIGHT){
         if(rotacaoAtivacao == 1){
             angulo += 5.0;
         }
+        else if(escalaAtivacao == 1){
+            escalaX += 0.5;
+        }
     }
     else if(key == GLUT_KEY_LEFT){
         if(rotacaoAtivacao == 1){
             angulo -= 5.0;
+        }
+        else if(escalaAtivacao == 1){
+            escalaX -= 0.5;
         }
     }
     glutPostRedisplay();
@@ -536,6 +580,16 @@ void display(void){
     desenharPontos();
 
     desenharRetas();
+
+    if(escalaAtivacao == 1){
+        glTranslatef(pontoMedio.x,pontoMedio.y,0.0);
+        glScalef(0.5,0.5,1.0);
+        glTranslatef(-pontoMedio.x,-pontoMedio.y,0.0);
+        glBegin(GL_LINES);
+            glVertex2i(retaAuxiliar.inicio.x,retaAuxiliar.inicio.y);
+            glVertex2i(retaAuxiliar.fim.x,retaAuxiliar.fim.y);
+        glEnd();
+    }
 
     desenharPoligonos();
 

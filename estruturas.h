@@ -51,4 +51,5 @@ Poligono poligonoAuxiliar;
 Ponto pontoAuxiliar;
 Reta retaAuxiliar;
 float angulo = 45.0;
-Ponto pontoMedio;
+Ponto pontoMedio, centroide;
+float escalaX = 1.0, escalaY = 1.0;
