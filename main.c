@@ -45,7 +45,7 @@ void addReta(int x1, int y1, int x2, int y2){
 }
 
 void desenharRetas(){
-    glLineWidth(6.0);
+    glLineWidth(6.0*escalaX);
     glBegin(GL_LINES);
     for (int i = 0; i < qtd_retas; i++){
         glColor3f(retas[i].inicio.cor[0], retas[i].inicio.cor[1], retas[i].inicio.cor[2]);
@@ -265,10 +265,21 @@ void escalarReta(){
 
     for (int i = 0; i < qtd_retas; i++){
         if(retas[i].inicio.x == retaAuxiliar.inicio.x && retas[i].inicio.y == retaAuxiliar.inicio.y && retas[i].fim.x == retaAuxiliar.fim.x && retas[i].fim.y == retaAuxiliar.fim.y){
-            retas[i].inicio.x *= 0.5;
-            retas[i].inicio.y *= 0.5;
-            retas[i].fim.x *= 0.5;
-            retas[i].fim.y *= 0.5;
+            retas[i].inicio.y = pontoMedio.y + (retaAuxiliar.inicio.y - pontoMedio.y) * escalaY;
+            retas[i].fim.y = pontoMedio.y + (retaAuxiliar.fim.y - pontoMedio.y) * escalaY;
+        }
+    }
+}
+
+void escalarPoligono(){
+    calcularCentroide();
+
+    for (int i = 0; i < qtd_poligonos; i++){
+        if(poligonos[i].vertices[0].x == poligonoAuxiliar.vertices[0].x && poligonos[i].vertices[0].y == poligonoAuxiliar.vertices[0].y){
+            for (int j = 0; j < poligonos[i].qtd_vertices; j++){
+                poligonos[i].vertices[j].x = centroide.x + (poligonoAuxiliar.vertices[j].x - centroide.x) * escalaX;
+                poligonos[i].vertices[j].y = centroide.y + (poligonoAuxiliar.vertices[j].y - centroide.y) * escalaY;
+            }
         }
     }
 }
@@ -350,12 +361,16 @@ void gerenciaTeclado(unsigned char key, int x, int y){
             }
         case 'T':
         case 't':
-            transladarAtivacao = 1 - transladarAtivacao;
-            break;
+            if(modo == 4){
+                transladarAtivacao = 1 - transladarAtivacao;
+                break;
+            }
         case 'E':
         case 'e':
-            escalaAtivacao = 1 - escalaAtivacao;
-            break;
+            if(modo == 4){
+                escalaAtivacao = 1 - escalaAtivacao;
+                break;
+            }
         case '1':
             modo = 1;
             break;
@@ -465,6 +480,9 @@ void gerenciaMouse(int button, int state, int x, int y){
                 else if(rotacaoAtivacao == 1){
                     rotacionarPoligono();
                 }
+                else if(escalaAtivacao == 1){
+                    escalarPoligono();
+                }
             }
         }
     }
@@ -544,12 +562,12 @@ void TeclasEspeciais(int key, int x, int y){
         }
     }
     else if(key == GLUT_KEY_UP) {
-        if(escalaAtivacao == 1){
+        if(escalaAtivacao == 1 && escalaY <= 5){
             escalaY += 0.5;
         }
     }
     else if(key == GLUT_KEY_DOWN) {
-        if(escalaAtivacao == 1){
+        if(escalaAtivacao == 1 && escalaY >= 1){
             escalaY -= 0.5;
         }
     }
@@ -565,7 +583,7 @@ void TeclasEspeciais(int key, int x, int y){
         if(rotacaoAtivacao == 1){
             angulo -= 5.0;
         }
-        else if(escalaAtivacao == 1){
+        else if(escalaAtivacao == 1 && escalaX >= 1.0){
             escalaX -= 0.5;
         }
     }
@@ -580,16 +598,6 @@ void display(void){
     desenharPontos();
 
     desenharRetas();
-
-    if(escalaAtivacao == 1){
-        glTranslatef(pontoMedio.x,pontoMedio.y,0.0);
-        glScalef(0.5,0.5,1.0);
-        glTranslatef(-pontoMedio.x,-pontoMedio.y,0.0);
-        glBegin(GL_LINES);
-            glVertex2i(retaAuxiliar.inicio.x,retaAuxiliar.inicio.y);
-            glVertex2i(retaAuxiliar.fim.x,retaAuxiliar.fim.y);
-        glEnd();
-    }
 
     desenharPoligonos();
 
