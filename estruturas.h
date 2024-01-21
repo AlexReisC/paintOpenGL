@@ -1,6 +1,6 @@
-#define MAX_PONTOS 100
-#define MAX_RETAS 100
-#define MAX_POLIGONOS 100
+#define MAX_PONTOS 1000
+#define MAX_RETAS 500
+#define MAX_POLIGONOS 500
 #define MAX_VERTICES 20
 #define ALTURA 480
 #define LARGURA 640

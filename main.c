@@ -284,6 +284,95 @@ void escalarPoligono(){
     }
 }
 
+void salvarPontos(){
+    FILE *arquivo = fopen("pontos.txt","a");
+    if(arquivo != NULL){
+        for (int i = 0; i < qtd_pontos; i++) {
+            fprintf(arquivo, "%d %d\n", pontos[i].x, pontos[i].y);
+        }
+        fclose(arquivo);
+        printf("Pontos salvos com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo para salvar pontos.\n");
+    }
+}
+
+void carregarPontos(){
+    FILE *arquivo = fopen("pontos.txt", "r");
+    if(arquivo != NULL){
+        while (fscanf(arquivo, "%d %d", &pontos[qtd_pontos].x, &pontos[qtd_pontos].y) > 0){
+            qtd_pontos++;
+        }
+
+        fclose(arquivo);
+        printf("Pontos carregados com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo de pontos.\n");
+    }
+}
+
+void salvarRetas(){
+    FILE *arquivo = fopen("retas.txt","a");
+    if(arquivo != NULL){
+        for (int i = 0; i < qtd_retas; i++) {
+            fprintf(arquivo, "%d %d %d %d\n", retas[i].inicio.x, retas[i].inicio.y, retas[i].fim.x, retas[i].fim.y);
+        }
+        fclose(arquivo);
+        printf("Retas salvas com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo para salvar retas.\n");
+    }
+}
+
+void carregarRetas(){
+    FILE *arquivo = fopen("retas.txt", "r");
+    if(arquivo != NULL){
+        while (fscanf(arquivo, "%d %d %d %d", &retas[qtd_retas].inicio.x, &retas[qtd_retas].inicio.y, &retas[qtd_retas].fim.x,&retas[qtd_retas].fim.y) > 0){
+            qtd_retas++;
+        }
+
+        fclose(arquivo);
+        printf("Retas carregadas com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo de retas.\n");
+    }
+}
+
+void salvarPoligonos(){
+    FILE *arquivo = fopen("poligonos.txt", "a");
+    if(arquivo != NULL){
+        for (int i = 0; i < qtd_poligonos; i++) {
+            fprintf(arquivo, "%d ", poligonos[i].qtd_vertices);
+            for (int j = 0; j < poligonos[i].qtd_vertices; j++) {
+                fprintf(arquivo, "%d %d ", poligonos[i].vertices[j].x, poligonos[i].vertices[j].y);
+            }
+            fprintf(arquivo, "\n");
+        }
+
+        fclose(arquivo);
+        printf("Poligonos salvos com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo para salvar poligonos");
+    }
+}
+
+void carregarPoligonos(){
+    FILE *arquivo = fopen("poligonos.txt", "r");
+    if(arquivo != NULL){
+        while (fscanf(arquivo, "%d", &poligonos[qtd_poligonos].qtd_vertices) > 0) {
+            for (int i = 0; i < poligonos[qtd_poligonos].qtd_vertices; i++) {
+                fscanf(arquivo, "%d %d", &poligonos[qtd_poligonos].vertices[i].x, &poligonos[qtd_poligonos].vertices[i].y);
+            }
+            qtd_poligonos++;
+        }
+
+        fclose(arquivo);
+        printf("Retas carregadas com sucesso!\n");
+    } else {
+        printf("Erro ao abrir o arquivo de retas.\n");
+    }
+}
+
 void gerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
         case 'Q':
@@ -586,6 +675,16 @@ void TeclasEspeciais(int key, int x, int y){
         else if(escalaAtivacao == 1 && escalaX >= 1.0){
             escalaX -= 0.5;
         }
+    }
+    else if(key == GLUT_KEY_F1){
+        salvarPontos();
+        salvarRetas();
+        salvarPoligonos();
+    }
+    else if(key == GLUT_KEY_F2){
+        carregarPontos();
+        carregarRetas();
+        carregarPoligonos();
     }
     glutPostRedisplay();
 }
