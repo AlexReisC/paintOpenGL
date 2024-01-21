@@ -15,7 +15,7 @@ Para desenhar pontos basta clicar com o botão esquerdo mouse, para retas é arr
 O modo de seleção é usada para selecionar individualmente ponto, reta ou poligono para aplicar as transformações geometricas de translação, rotação e escala. A translação ocorre pressionando e arrastando o objeto ao local desejado, a rotação ocorre ao clicar no objeto e então ele será rotacionado em quantos graus for desejado (feito através das setas do teclado) e na escala o objeto aumenta de tamanho ao clique do mouse (também determina o fator de escala pelas setas do teclado).
 A última funcionalidade é a de salvar os objetos em arquivos e carrega-los do arquivo para a tela quando quiser, não há requisito para tal e pode ser feito pressionanando 'F1' para salvar e 'F2' para carregar os objetos salvos nos arquivos.
 
-###Lista de teclas e funcionalidades
+### Lista de teclas e funcionalidades
 - R: cor vermelha / no modo de seleção ativa a rotação
 - G: verde
 - B: azul
